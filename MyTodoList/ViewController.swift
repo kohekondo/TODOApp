@@ -49,6 +49,8 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.delegate   = self
+        tableView.dataSource = self
     }
 
     override func didReceiveMemoryWarning() {
