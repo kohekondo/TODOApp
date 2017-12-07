@@ -14,7 +14,7 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
 
     @IBOutlet weak var tableView: UITableView!
     // ToDoを格納した配列
-    var todoList:[String] = ["kohe","toyama", "ami"]
+    var todoList:[String] = []
     
     //+ ボタンが押されたときに実行
     @IBAction func tapAddButton(_ sender: Any) {
@@ -33,6 +33,11 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
 
                 //テーブル(配列)に行が追加されたことをテーブルに通知
                 self.tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: UITableViewRowAnimation.right)
+                print(self.todoList)
+                //ToDoの保存処理
+                let userDefault = UserDefaults.standard
+                userDefault.set(self.todoList, forKey: "todoList")
+                userDefault.synchronize()
 
             }
         }
@@ -51,6 +56,12 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
         super.viewDidLoad()
         tableView.delegate   = self
         tableView.dataSource = self
+        
+        //保存しているToDoの読み込み処理
+        let userDefault      = UserDefaults.standard
+        if let stredTodoList = userDefault.array(forKey: "todoList") as? [String] {
+            todoList.append(contentsOf: stredTodoList)
+        }
     }
 
     override func didReceiveMemoryWarning() {
