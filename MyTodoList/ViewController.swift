@@ -14,8 +14,7 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
 
     @IBOutlet weak var tableView: UITableView!
     // ToDoを格納した配列
-    var todoList:[String] = []
-    
+    var todoList:[MyTodo] = []
     //+ ボタンが押されたときに実行
     @IBAction func tapAddButton(_ sender: Any) {
         //アラートダイアログを生成
@@ -29,14 +28,18 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
             //OKボタンが押されたときの処理
             if let textField = alertController.textFields?.first {
                 //ToDoの配列に入力値を挿入。先頭に挿入する
-                self.todoList.insert(textField.text!, at: 0)
+                let myTodo = MyTodo()
+                myTodo.todoTitle = textField.text!
+                self.todoList.insert(myTodo, at: 0)
 
                 //テーブル(配列)に行が追加されたことをテーブルに通知
                 self.tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: UITableViewRowAnimation.right)
                 print(self.todoList)
                 //ToDoの保存処理
                 let userDefault = UserDefaults.standard
-                userDefault.set(self.todoList, forKey: "todoList")
+                //Data型にシリアライズする
+                let data = NSKeyedArchiver.archivedData(withRootObject: self.todoList)
+                userDefault.set(data, forKey: "todoList")
                 userDefault.synchronize()
 
             }
@@ -59,17 +62,18 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
         
         //保存しているToDoの読み込み処理
         let userDefault      = UserDefaults.standard
-        if let stredTodoList = userDefault.array(forKey: "todoList") as? [String] {
-            todoList.append(contentsOf: stredTodoList)
+        if let stredTodoList = userDefault.object(forKey: "todoList") as? Data {
+            if let unarchiveTodoList = NSKeyedUnarchiver.unarchiveObject(with: stredTodoList) as? [MyTodo] {
+                todoList.append(contentsOf: unarchiveTodoList)
+            }
         }
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         return todoList.count
     }
     
@@ -78,13 +82,27 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
         //Storyboaardで指定したtodoCell識別子を利用して再利用可能なセルを取得する
         let cell = tableView.dequeueReusableCell(withIdentifier: "todoCell", for: indexPath)
         
-        //行番号に合ったToDoのタイトルを取得
-        let todoTitle = todoList[indexPath.row]
+        //行番号に合ったToDoの情報を取得
+        let myTodo = todoList[indexPath.row]
         
         //セルのラベルにToDoのタイトルをセット
-        cell.textLabel?.text = todoTitle
+        cell.textLabel?.text = myTodo.todoTitle
+        
+        //セルのチェックマークの状態をセット
+        if myTodo.todoDone {
+            //チェックあり
+            cell.accessoryType = UITableViewCellAccessoryType.checkmark
+        } else {
+            //チェックなし
+            cell.accessoryType = UITableViewCellAccessoryType.none
+        }
         
         return cell
+    }
+    
+    //セルをタップしたときの処理
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        <#code#>
     }
 }
 
@@ -97,7 +115,6 @@ class MyTodo: NSObject,NSCoding {
     var todoDone:Bool = false
     //コンストラクタ
     override init() {
-        
     }
     
     //NSCodingプロトコルに宣言されているシリアライズ処理。エンコード処理とも呼ばれる。
