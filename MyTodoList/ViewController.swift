@@ -102,7 +102,25 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     //セルをタップしたときの処理
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        <#code#>
+        
+        let myTodo = todoList[indexPath.row]
+        if myTodo.todoDone{
+            myTodo.todoDone = false
+        } else {
+            myTodo.todoDone = true
+        }
+
+        //セルの状態を変更
+        tableView.reloadRows(at: [indexPath], with: UITableViewRowAnimation.fade)
+        
+        //データ保存。Data型にシリアライズする
+        let data:Data = NSKeyedArchiver.archivedData(withRootObject: todoList)
+        
+        //userDefaultsに保存
+        let userDefaults = UserDefaults.standard
+        userDefaults.set(data, forKey: "todoList")
+        userDefaults.synchronize()
+        
     }
 }
 
