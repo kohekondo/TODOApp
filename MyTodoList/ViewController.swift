@@ -34,7 +34,6 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
 
                 //テーブル(配列)に行が追加されたことをテーブルに通知
                 self.tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: UITableViewRowAnimation.right)
-                print(self.todoList)
                 //ToDoの保存処理
                 let userDefault = UserDefaults.standard
                 //Data型にシリアライズする
