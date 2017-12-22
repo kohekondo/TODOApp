@@ -122,6 +122,31 @@ class ViewController: UIViewController,UITableViewDataSource,UITableViewDelegate
         userDefaults.synchronize()
         
     }
+    
+    //セルが編集可能であるかどうかを返却する
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    //セルを削除した時の処理
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        //削除可能かどうか
+        if editingStyle == UITableViewCellEditingStyle.delete {
+            //TODOリストから削除
+            todoList.remove(at: indexPath.row)
+            
+            //セル削除
+            tableView.deleteRows(at: [indexPath], with: UITableViewRowAnimation.fade)
+            
+            //データ保存。Data型にシリアライズする
+            let data:Data = NSKeyedArchiver.archivedData(withRootObject: todoList)
+            
+            //UserDefaultsに保存
+            let userDefault = UserDefaults.standard
+            userDefault.set(data, forKey: "todoList")
+            userDefault.synchronize()
+        }
+    }
 }
 
 //独自クラスをシリアライズする際には,NSObjectを継承し
